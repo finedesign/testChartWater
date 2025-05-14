@@ -1,9 +1,9 @@
 // Create a dedicated file for chart HTML generation
-export const createChartHtml = (chartData, config) => {
+export const createChartHtml = (chartData, config, customColors = {}) => {
   const theme = config.theme || 'light';
   
-  // Set theme-specific colors
-  const bgColor = theme === 'dark' ? '#121212' : '#ffffff';
+  // Set theme-specific colors, allow override from customColors
+  const bgColor = customColors.bg || (theme === 'dark' ? '#121212' : '#ffffff');
   const textColor = theme === 'dark' ? '#ffffff' : '#333333';
   const gridColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
   
@@ -11,7 +11,7 @@ export const createChartHtml = (chartData, config) => {
   const waterDataset = {
     label: 'Water (cups)',
     data: chartData.waterData,
-    backgroundColor: theme === 'dark' ? 'rgba(53, 162, 235, 0.7)' : 'rgba(53, 162, 235, 0.5)',
+    backgroundColor: customColors.bar || (theme === 'dark' ? 'rgba(53, 162, 235, 0.7)' : 'rgba(53, 162, 235, 0.5)'),
     borderColor: 'rgba(53, 162, 235, 1)',
     borderWidth: 1,
     yAxisID: 'y',
@@ -22,10 +22,10 @@ export const createChartHtml = (chartData, config) => {
     data: chartData.fatigueData,
     type: 'line',
     fill: false,
-    borderColor: 'rgba(255, 99, 132, 1)',
+    borderColor: customColors.line || 'rgba(255, 99, 132, 1)',
     borderWidth: 2,
     pointRadius: 3,
-    pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+    pointBackgroundColor: customColors.line || 'rgba(255, 99, 132, 1)',
     yAxisID: 'y1',
   };
   

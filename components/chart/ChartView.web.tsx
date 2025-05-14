@@ -4,6 +4,12 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChartData, processEntriesForChart } from './chartUtils';
 import { WaterLogEntry } from '@/src/lib/logStore';
 import Chart from 'chart.js/auto';
+import { MotiView } from 'moti';
+import resolveConfig from "tailwindcss/resolveConfig";
+import tailwindConfig from "../../tailwind.config";
+
+// Resolve tailwind config
+const tw = resolveConfig(tailwindConfig).theme;
 
 // Chart configuration type
 interface ChartConfig {
@@ -66,9 +72,12 @@ const ChartView: React.FC<ChartViewProps> = ({
   useEffect(() => {
     if (!canvasRef.current) return;
     
-    const bgColor = chartConfig.theme === 'dark' ? '#121212' : '#ffffff';
+    // Compute colors per theme based on Tailwind
+    const bgColor = chartConfig.theme === 'dark' ? tw.colors.gray[900] : '#ffffff';
     const textColor = chartConfig.theme === 'dark' ? '#ffffff' : '#333333';
     const gridColor = chartConfig.theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    const barColor = chartConfig.theme === 'dark' ? tw.colors.blue[400] : tw.colors.blue[600];
+    const lineColor = chartConfig.theme === 'dark' ? tw.colors.yellow[300] : tw.colors.yellow[600];
     
     // Dataset configurations
     const datasets = [];
@@ -77,7 +86,7 @@ const ChartView: React.FC<ChartViewProps> = ({
       datasets.push({
         label: 'Water (cups)',
         data: chartData.waterData,
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+        backgroundColor: barColor,
         borderColor: 'rgba(53, 162, 235, 1)',
         borderWidth: 1,
         yAxisID: 'y',
@@ -90,10 +99,10 @@ const ChartView: React.FC<ChartViewProps> = ({
         data: chartData.fatigueData,
         type: 'line',
         fill: false,
-        borderColor: 'rgba(255, 99, 132, 1)',
+        borderColor: lineColor,
         borderWidth: 2,
         pointRadius: 3,
-        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+        pointBackgroundColor: lineColor,
         yAxisID: 'y1',
       });
     }
@@ -252,15 +261,24 @@ const ChartView: React.FC<ChartViewProps> = ({
     </div>
   );
   
-  // Return the canvas element for web
+  // Return the canvas for the chart
   return (
-    <View style={styles.container}>
-      <canvas
-        ref={canvasRef}
-        width={containerWidth}
-        height={containerHeight}
-        style={{ width: '100%', height: '100%', display: 'block' }}
-      />
+    <View style={[styles.container, {
+      backgroundColor: chartConfig.theme === 'dark' ? '#121212' : '#ffffff'
+    }]}>
+      <MotiView 
+        from={{opacity:0,translateY:20}} 
+        animate={{opacity:1,translateY:0}} 
+        transition={{type:"timing",duration:300}}
+        style={styles.canvasContainer}
+      >
+        <canvas 
+          ref={canvasRef} 
+          width={containerWidth} 
+          height={containerHeight} 
+          style={{ width: '100%', height: '100%' }} 
+        />
+      </MotiView>
       {webControls}
     </View>
   );
@@ -273,6 +291,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  canvasContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

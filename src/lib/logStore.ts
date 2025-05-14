@@ -59,7 +59,7 @@ export const useLogStore = create<LogState>((set, get) => ({
     try {
       // Calculate the start date based on the timespan
       const now = new Date();
-      let startDate = new Date();
+      const startDate = new Date();
       
       switch (timespan) {
         case 'day':

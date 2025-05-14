@@ -5,6 +5,12 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChartData, processEntriesForChart } from './chartUtils';
 import { createChartHtml } from './createChartHtml';
 import { WaterLogEntry } from '@/src/lib/logStore';
+import { MotiView } from 'moti';
+import resolveConfig from "tailwindcss/resolveConfig";
+import tailwindConfig from "../../tailwind.config";
+
+// Resolve tailwind config
+const tw = resolveConfig(tailwindConfig).theme;
 
 // Chart configuration type
 interface ChartConfig {
@@ -71,11 +77,16 @@ const ChartView: React.FC<ChartViewProps> = ({
     theme: actualTheme,
   };
   
+  // Compute colors per theme
+  const bg = actualTheme === "dark" ? tw.colors.gray[900] : "#ffffff";
+  const bar = actualTheme === "dark" ? tw.colors.blue[400] : tw.colors.blue[600];
+  const line = actualTheme === "dark" ? tw.colors.yellow[300] : tw.colors.yellow[600];
+  
   // Create chart HTML - Will recreate when theme changes via forceRenderKey
   const html = useMemo(() => {
     console.log(`[CHART] Creating chart HTML with theme: ${chartConfig.theme}`);
-    return createChartHtml(chartData, chartConfig);
-  }, [chartData, chartConfig, forceRenderKey]);
+    return createChartHtml(chartData, chartConfig, { bg, bar, line });
+  }, [chartData, chartConfig, forceRenderKey, bg, bar, line]);
   
   // If loading, show spinner
   if (isLoading) {
@@ -91,22 +102,29 @@ const ChartView: React.FC<ChartViewProps> = ({
     <View style={[styles.container, {
       backgroundColor: chartConfig.theme === 'dark' ? '#121212' : '#ffffff'
     }]}>
-      <WebView
-        key={`chart-webview-${actualTheme}-${forceRenderKey}`}
-        originWhitelist={['*']}
-        source={{ html }}
+      <MotiView 
+        from={{opacity:0,translateY:20}} 
+        animate={{opacity:1,translateY:0}} 
+        transition={{type:"timing",duration:300}}
         style={styles.webview}
-        scrollEnabled={false}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        onError={(e) => console.error('WebView error:', e.nativeEvent)}
-        // Important: Set this for WebView to respect dark theme
-        contentInsetAdjustmentBehavior="automatic"
-        // Force opacity to ensure background shows through
-        containerStyle={{ opacity: 0.99 }}
-        // Force WebView background to match theme
-        cacheEnabled={false}
-      />
+      >
+        <WebView
+          key={`chart-webview-${actualTheme}-${forceRenderKey}`}
+          originWhitelist={['*']}
+          source={{ html }}
+          style={styles.webview}
+          scrollEnabled={false}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          onError={(e) => console.error('WebView error:', e.nativeEvent)}
+          // Important: Set this for WebView to respect dark theme
+          contentInsetAdjustmentBehavior="automatic"
+          // Force opacity to ensure background shows through
+          containerStyle={{ opacity: 0.99 }}
+          // Force WebView background to match theme
+          cacheEnabled={false}
+        />
+      </MotiView>
     </View>
   );
 };

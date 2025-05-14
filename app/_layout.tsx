@@ -4,11 +4,17 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import 'react-native-reanimated';
 import { useColorScheme } from '@/components/useColorScheme';
 import { User } from 'firebase/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { signInAnonymous, useFirebaseAuth } from '../src/lib/firebase';
+
+// Import global.css for web only
+if (Platform.OS === 'web') {
+  require('../global.css');
+}
 
 export {
   // Catch any errors thrown by the Layout component.
